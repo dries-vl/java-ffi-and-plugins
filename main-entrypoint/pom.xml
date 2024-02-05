@@ -3,10 +3,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.example</groupId>
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>ffi-example</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <artifactId>main-entrypoint</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -31,7 +34,7 @@
             <artifactId>welcome-plugin</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/../plugins/welcome-plugin-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/../jars/welcome-plugin-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -40,7 +43,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.10.0</version>
                 <configuration>
                     <compilerArgs>--enable-preview</compilerArgs>
                     <annotationProcessors>
