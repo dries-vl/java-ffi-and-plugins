@@ -1,6 +1,9 @@
 import org.pf4j.JarPluginManager;
 import org.pf4j.PluginManager;
-import plugin4j.Greeting;
+import org.pf4j.update.DefaultUpdateRepository;
+import org.pf4j.update.PluginInfo;
+import org.pf4j.update.UpdateManager;
+//import plugin4j.Greeting;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,6 +11,7 @@ import java.util.List;
 
 public class Main {
     static PluginManager pluginManager = new JarPluginManager(Path.of("plugins"));
+    static UpdateManager updateManager = new UpdateManager(pluginManager);
 
     public static void main(String[] args) throws InterruptedException {
         pluginManager.loadPlugins();
@@ -23,21 +27,26 @@ public class Main {
 //        pluginManager.stopPlugins();
     }
 
-    public static boolean reloadPlugin(String pluginId, String pluginPath) {
-        try {
-            pluginManager.stopPlugin(pluginId);
-            pluginManager.unloadPlugin(pluginId);
-            System.out.println("RELOAD NOW");
-            Thread.sleep(5000);
-            System.out.println("MISSED RELOAD WINDOW");
-            pluginManager.loadPlugin(Paths.get(pluginPath));
-            pluginManager.enablePlugin(pluginId);
-            pluginManager.startPlugin(pluginId);
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    public static void reloadPlugin(String pluginId, String pluginPath) throws InterruptedException {
+        Thread.sleep(3000);
+        if (updateManager.hasUpdates()) {
+            List<PluginInfo> updates = updateManager.getUpdates();
+            System.out.printf("Found {} updates%n", updates.size());
+            for (PluginInfo plugin : updates) {
+                System.out.println(String.format("Found update for plugin '{}'", plugin.id));
+                PluginInfo.PluginRelease lastRelease = updateManager.getLastPluginRelease(plugin.id);
+                String lastVersion = lastRelease.version;
+                String installedVersion = pluginManager.getPlugin(plugin.id).getDescriptor().getVersion();
+                System.out.println(String.format("Update plugin '{}' from version {} to version {}", plugin.id, installedVersion, lastVersion));
+                boolean updated = updateManager.updatePlugin(plugin.id, lastVersion);
+                if (updated) {
+                    System.out.println(String.format("Updated plugin '{}'", plugin.id));
+                } else {
+                    System.out.println(String.format("Cannot update plugin '{}'", plugin.id));
+                }
+            }
+        } else {
+            System.out.println("No updates found");
         }
     }
 }
